@@ -147,19 +147,19 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         String recipeType = selectedRecipeType.toLowerCase();
 
         if (recipeType.contains("shaped") || recipeType.contains("crafting_shaped")) {
-            menu.setActiveSlots(9, 1); // 3x3 crafting grid, 1 output
+            menu.setActiveSlots(9, 1, 3, 1); // 3x3 crafting grid, 1 output
         } else if (recipeType.contains("shapeless") || recipeType.contains("crafting_shapeless")) {
-            menu.setActiveSlots(9, 1); // Up to 9 inputs, 1 output
+            menu.setActiveSlots(9, 1, 3, 1); // Up to 9 inputs, 1 output
         } else if (recipeType.contains("smelting") || recipeType.contains("blasting") ||
                    recipeType.contains("smoking") || recipeType.contains("campfire")) {
-            menu.setActiveSlots(1, 1); // 1 input, 1 output
+            menu.setActiveSlots(1, 1, 1, 1); // 1 input, 1 output
         } else if (recipeType.contains("stonecutting")) {
-            menu.setActiveSlots(1, 1); // 1 input, 1 output
+            menu.setActiveSlots(1, 1, 1, 1); // 1 input, 1 output
         } else if (recipeType.contains("smithing")) {
-            menu.setActiveSlots(3, 1); // Template, base, addition -> output
+            menu.setActiveSlots(3, 1, 3, 1); // Template, base, addition -> output
         } else {
             // Default configuration
-            menu.setActiveSlots(3, 2); // 3 inputs, 2 outputs
+            menu.setActiveSlots(3, 2, 3, 2); // 3 inputs, 2 outputs
         }
     }
 
