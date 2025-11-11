@@ -1,5 +1,6 @@
 package com.example.examplemod;
 
+import com.example.examplemod.network.ModNetworking;
 import com.example.examplemod.registry.ModMenuTypes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -90,6 +91,8 @@ public class ExampleMod
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
+        event.enqueueWork(ModNetworking::register);
+
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
 
