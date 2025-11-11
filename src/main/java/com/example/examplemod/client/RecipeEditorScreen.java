@@ -146,10 +146,14 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         // Configure slots based on recipe type
         String recipeType = selectedRecipeType.toLowerCase();
 
-        if (recipeType.contains("shaped") || recipeType.contains("crafting_shaped")) {
-            menu.setActiveSlots(9, 1); // 3x3 crafting grid, 1 output
-        } else if (recipeType.contains("shapeless") || recipeType.contains("crafting_shapeless")) {
-            menu.setActiveSlots(9, 1); // Up to 9 inputs, 1 output
+        if (recipeType.contains("crafting_shaped") || recipeType.contains("crafting_shapeless")
+            || recipeType.equals("minecraft:crafting") || recipeType.contains(":crafting")) {
+            // Vanilla crafting recipes all report the generic "minecraft:crafting" type, so make sure
+            // we always expose the full 3x3 input grid and the 2x2 output grid for them.
+            menu.setActiveSlots(9, 4);
+        } else if (recipeType.contains("shaped") || recipeType.contains("shapeless")) {
+            // Fallback for any custom shaped/shapeless identifiers that still deserve the full grid.
+            menu.setActiveSlots(9, 4);
         } else if (recipeType.contains("smelting") || recipeType.contains("blasting") ||
                    recipeType.contains("smoking") || recipeType.contains("campfire")) {
             menu.setActiveSlots(1, 1); // 1 input, 1 output
