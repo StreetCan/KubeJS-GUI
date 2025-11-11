@@ -39,6 +39,10 @@ public class RecipeTypeRegistry {
         // Also add standard recipe types from registry
         ForgeRegistries.RECIPE_TYPES.getKeys().forEach(recipeTypes::add);
 
+        // Always expose standard crafting subtypes so users can target them directly.
+        recipeTypes.add(new ResourceLocation("minecraft", "crafting_shaped"));
+        recipeTypes.add(new ResourceLocation("minecraft", "crafting_shapeless"));
+
         // Organize by mod namespace
         for (ResourceLocation typeId : recipeTypes) {
             String modId = typeId.getNamespace();

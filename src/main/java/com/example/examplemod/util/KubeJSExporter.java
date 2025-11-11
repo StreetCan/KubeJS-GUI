@@ -36,7 +36,7 @@ public class KubeJSExporter {
         if (lowerType.contains("shaped") || lowerType.contains("crafting_shaped")) {
             generateShapedCrafting(script, inputs, outputs, activeInputSlots, activeOutputSlots);
         } else if (lowerType.contains("shapeless") || lowerType.contains("crafting_shapeless")) {
-            generateShapelessCrafting(script, inputs, outputs, activeInputSlots, activeOutputSlots);
+            generateShapelessCrafting(script, recipeType, inputs, outputs, activeInputSlots, activeOutputSlots);
         } else if (lowerType.contains("smelting") || lowerType.contains("blasting") ||
                    lowerType.contains("smoking") || lowerType.contains("campfire")) {
             generateSmeltingRecipe(script, inputs, outputs, recipeType);
@@ -61,7 +61,7 @@ public class KubeJSExporter {
 
         // Generate 3x3 pattern
         for (int row = 0; row < 3; row++) {
-            script.append("            '");
+            script.append("            \"");
             for (int col = 0; col < 3; col++) {
                 int index = row * 3 + col;
                 ItemStack stack = inputs.getStackInSlot(index);
@@ -71,7 +71,7 @@ public class KubeJSExporter {
                     script.append(' ');
                 }
             }
-            script.append("'");
+            script.append("\"");
             if (row < 2) script.append(",");
             script.append("\n");
         }
@@ -82,8 +82,8 @@ public class KubeJSExporter {
             ItemStack stack = inputs.getStackInSlot(i);
             if (!stack.isEmpty()) {
                 String itemId = getItemId(stack);
-                script.append("            '").append((char) ('A' + i)).append("': { item: '")
-                      .append(itemId).append("' }");
+                script.append("            \"").append((char) ('A' + i)).append("\": { item: \"")
+                      .append(itemId).append("\" }");
 
                 // Add comma if not last
                 boolean hasMore = false;
@@ -103,7 +103,7 @@ public class KubeJSExporter {
         if (activeOutputSlots > 0 && !outputs.getStackInSlot(0).isEmpty()) {
             ItemStack result = outputs.getStackInSlot(0);
             String itemId = getItemId(result);
-            script.append("        result: { item: '").append(itemId).append("'");
+            script.append("        result: { item: \"").append(itemId).append("\"");
             if (result.getCount() > 1) {
                 script.append(", count: ").append(result.getCount());
             }
@@ -111,7 +111,7 @@ public class KubeJSExporter {
         }
     }
 
-    private static void generateShapelessCrafting(StringBuilder script, ItemStackHandler inputs,
+    private static void generateShapelessCrafting(StringBuilder script, String recipeType, ItemStackHandler inputs,
                                                    ItemStackHandler outputs, int activeInputSlots, int activeOutputSlots) {
         script.append("    ingredients: [\n");
 
@@ -139,9 +139,23 @@ public class KubeJSExporter {
         if (activeOutputSlots > 0 && !outputs.getStackInSlot(0).isEmpty()) {
             ItemStack result = outputs.getStackInSlot(0);
             String itemId = getItemId(result);
-            script.append("    results: [\n");
-            script.append("      { item: \"").append(itemId).append("\" }");
-            script.append("\n    ]\n");
+            boolean isCraftingTableRecipe = recipeType.toLowerCase().contains("crafting");
+
+            if (isCraftingTableRecipe) {
+                script.append("    result: { item: \"").append(itemId).append("\"");
+                if (result.getCount() > 1) {
+                    script.append(", count: ").append(result.getCount());
+                }
+                script.append(" }\n");
+            } else {
+                script.append("    results: [\n");
+                script.append("      { item: \"").append(itemId).append("\"");
+                if (result.getCount() > 1) {
+                    script.append(", count: ").append(result.getCount());
+                }
+                script.append(" }");
+                script.append("\n    ]\n");
+            }
         }
     }
 
