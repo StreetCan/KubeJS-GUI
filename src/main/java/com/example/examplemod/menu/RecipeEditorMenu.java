@@ -19,11 +19,19 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
     private static final int MAX_INPUT_SLOTS = 9;
     private static final int MAX_OUTPUT_SLOTS = 4;
 
+    private static final int SLOT_SPACING = 18;
+    private static final int INPUT_START_X = 8;
+    private static final int INPUT_START_Y = 17;
+    private static final int OUTPUT_START_X = 116;
+    private static final int OUTPUT_START_Y = 26;
+
     private final ItemStackHandler inputItems = new ItemStackHandler(MAX_INPUT_SLOTS);
     private final ItemStackHandler outputItems = new ItemStackHandler(MAX_OUTPUT_SLOTS);
 
     private int activeInputSlots = 1;  // How many input slots are currently visible
     private int activeOutputSlots = 1; // How many output slots are currently visible
+    private int inputColumns = 1;
+    private int outputColumns = 1;
 
     public RecipeEditorMenu(int id, Inventory playerInventory) {
         super(ModMenuTypes.RECIPE_EDITOR.get(), id);
@@ -31,7 +39,9 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         // Add input slots (left side)
         for (int i = 0; i < MAX_INPUT_SLOTS; i++) {
             final int slotIndex = i;
-            addSlot(new SlotItemHandler(inputItems, i, 8 + (i % 3) * 18, 17 + (i / 3) * 18) {
+            addSlot(new SlotItemHandler(inputItems, i,
+                INPUT_START_X + (i % 3) * SLOT_SPACING,
+                INPUT_START_Y + (i / 3) * SLOT_SPACING) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
@@ -47,7 +57,9 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         // Add output slots (right side)
         for (int i = 0; i < MAX_OUTPUT_SLOTS; i++) {
             final int slotIndex = i;
-            addSlot(new SlotItemHandler(outputItems, i, 116 + (i % 2) * 18, 26 + (i / 2) * 18) {
+            addSlot(new SlotItemHandler(outputItems, i,
+                OUTPUT_START_X + (i % 2) * SLOT_SPACING,
+                OUTPUT_START_Y + (i / 2) * SLOT_SPACING) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
@@ -82,8 +94,18 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
     }
 
     public void setActiveSlots(int inputs, int outputs) {
-        this.activeInputSlots = Math.min(inputs, MAX_INPUT_SLOTS);
-        this.activeOutputSlots = Math.min(outputs, MAX_OUTPUT_SLOTS);
+        setActiveSlots(inputs, outputs, 3, 2);
+    }
+
+    public void setActiveSlots(int inputs, int outputs, int requestedInputColumns, int requestedOutputColumns) {
+        this.activeInputSlots = Math.min(Math.max(inputs, 0), MAX_INPUT_SLOTS);
+        this.activeOutputSlots = Math.min(Math.max(outputs, 0), MAX_OUTPUT_SLOTS);
+
+        this.inputColumns = Math.max(1, Math.min(requestedInputColumns, MAX_INPUT_SLOTS));
+        this.outputColumns = Math.max(1, Math.min(requestedOutputColumns, MAX_OUTPUT_SLOTS));
+
+        updateInputSlotPositions();
+        updateOutputSlotPositions();
     }
 
     public int getActiveInputSlots() {
@@ -92,6 +114,33 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
 
     public int getActiveOutputSlots() {
         return activeOutputSlots;
+    }
+
+    private void updateInputSlotPositions() {
+        int totalSlots = Math.min(MAX_INPUT_SLOTS, this.slots.size());
+        for (int i = 0; i < totalSlots; i++) {
+            Slot slot = this.slots.get(i);
+            int column = i % inputColumns;
+            int row = i / inputColumns;
+
+            slot.set(INPUT_START_X + column * SLOT_SPACING, INPUT_START_Y + row * SLOT_SPACING);
+        }
+    }
+
+    private void updateOutputSlotPositions() {
+        int baseIndex = MAX_INPUT_SLOTS;
+        for (int i = 0; i < MAX_OUTPUT_SLOTS; i++) {
+            int slotListIndex = baseIndex + i;
+            if (slotListIndex >= this.slots.size()) {
+                break;
+            }
+
+            Slot slot = this.slots.get(slotListIndex);
+            int column = i % outputColumns;
+            int row = i / outputColumns;
+
+            slot.set(OUTPUT_START_X + column * SLOT_SPACING, OUTPUT_START_Y + row * SLOT_SPACING);
+        }
     }
 
     @Override
