@@ -3,17 +3,13 @@ package com.example.examplemod.client;
 import com.example.examplemod.menu.RecipeEditorMenu;
 import com.example.examplemod.recipe.RecipeTypeRegistry;
 import com.example.examplemod.util.KubeJSExporter;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +17,12 @@ import java.util.List;
  * Allows users to visually create recipes and export them as KubeJS scripts.
  */
 public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
+    private static final int SLOT_SIZE = 18;
+    private static final int PANEL_BORDER_COLOR = 0xFF000000;
+    private static final int PANEL_BACKGROUND_COLOR = 0xFF2D2D2D;
+    private static final int SLOT_BACKGROUND_COLOR = 0xFF3F3F3F;
+    private static final int SLOT_HIGHLIGHT_COLOR = 0xFF555555;
+    private static final int SLOT_SHADOW_COLOR = 0xFF1B1B1B;
 
     private EditBox recipeIdBox;
     private Button modFilterButton;
@@ -39,9 +40,9 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
 
     public RecipeEditorScreen(RecipeEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 222;
+        this.imageHeight = 166;
         this.inventoryLabelY = this.imageHeight - 94;
-        this.titleLabelY = -10; // Move title off screen to prevent slot misalignment
+        this.titleLabelY = 6;
 
         // Initialize recipe type registry
         RecipeTypeRegistry.scanRecipeTypes();
@@ -195,15 +196,32 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        int x = this.leftPos;
+        int y = this.topPos;
 
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
+        // Main panel background
+        guiGraphics.fill(x - 4, y - 4, x + imageWidth + 4, y + imageHeight + 4, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x - 3, y - 3, x + imageWidth + 3, y + imageHeight + 3, PANEL_BACKGROUND_COLOR);
 
-        // Draw main background
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        // Recipe area panel
+        guiGraphics.fill(x + 3, y + 3, x + imageWidth - 3, y + 78, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x + 4, y + 4, x + imageWidth - 4, y + 77, PANEL_BACKGROUND_COLOR);
+
+        // Player inventory panel
+        guiGraphics.fill(x + 3, y + 79, x + imageWidth - 3, y + imageHeight - 3, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x + 4, y + 80, x + imageWidth - 4, y + imageHeight - 4, PANEL_BACKGROUND_COLOR);
+
+        // Draw input grid (3x3)
+        drawSlotGrid(guiGraphics, x + 8, y + 17, 3, 3);
+
+        // Draw output grid (2x2)
+        drawSlotGrid(guiGraphics, x + 116, y + 26, 2, 2);
+
+        // Draw player inventory grid (3 rows)
+        drawSlotGrid(guiGraphics, x + 8, y + 84, 9, 3);
+
+        // Draw player hotbar
+        drawSlotGrid(guiGraphics, x + 8, y + 142, 9, 1);
     }
 
     @Override
@@ -233,5 +251,28 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
             return true;
         }
         return super.charTyped(codePoint, modifiers);
+    }
+
+    private void drawSlotGrid(GuiGraphics guiGraphics, int startX, int startY, int columns, int rows) {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
+                int slotX = startX + col * SLOT_SIZE;
+                int slotY = startY + row * SLOT_SIZE;
+                drawSlot(guiGraphics, slotX, slotY);
+            }
+        }
+    }
+
+    private void drawSlot(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, SLOT_BACKGROUND_COLOR);
+
+        // Top and left highlight
+        guiGraphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + 2, SLOT_HIGHLIGHT_COLOR);
+        guiGraphics.fill(x + 1, y + 1, x + 2, y + SLOT_SIZE - 1, SLOT_HIGHLIGHT_COLOR);
+
+        // Bottom and right shadow
+        guiGraphics.fill(x + 1, y + SLOT_SIZE - 2, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, SLOT_SHADOW_COLOR);
+        guiGraphics.fill(x + SLOT_SIZE - 2, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, SLOT_SHADOW_COLOR);
     }
 }
