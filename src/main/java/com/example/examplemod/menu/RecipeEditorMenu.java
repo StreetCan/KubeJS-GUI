@@ -30,20 +30,32 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
 
         // Add input slots (left side)
         for (int i = 0; i < MAX_INPUT_SLOTS; i++) {
+            final int slotIndex = i;
             addSlot(new SlotItemHandler(inputItems, i, 8 + (i % 3) * 18, 17 + (i / 3) * 18) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return slotIndex < activeInputSlots;
                 }
             });
         }
 
         // Add output slots (right side)
         for (int i = 0; i < MAX_OUTPUT_SLOTS; i++) {
+            final int slotIndex = i;
             addSlot(new SlotItemHandler(outputItems, i, 116 + (i % 2) * 18, 26 + (i / 2) * 18) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return slotIndex < activeOutputSlots;
                 }
             });
         }
@@ -91,16 +103,16 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
 
-            int containerSlots = MAX_INPUT_SLOTS + MAX_OUTPUT_SLOTS;
+            int containerSlotEnd = MAX_INPUT_SLOTS + MAX_OUTPUT_SLOTS;
 
-            if (index < containerSlots) {
+            if (index < containerSlotEnd) {
                 // Moving from container to player inventory
-                if (!this.moveItemStackTo(stack, containerSlots, this.slots.size(), true)) {
+                if (!this.moveItemStackTo(stack, containerSlotEnd, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 // Moving from player inventory to container (inputs only)
-                if (!this.moveItemStackTo(stack, 0, MAX_INPUT_SLOTS, false)) {
+                if (activeInputSlots == 0 || !this.moveItemStackTo(stack, 0, activeInputSlots, false)) {
                     return ItemStack.EMPTY;
                 }
             }
