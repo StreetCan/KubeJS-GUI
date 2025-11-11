@@ -1,0 +1,7 @@
+{
+  "itemGroup.examplemod": "Example Mod Tab",
+  "block.examplemod.example_block": "Example Block",
+  "item.examplemod.example_item": "Example Item",
+  "key.categories.examplemod": "Example Mod",
+  "key.examplemod.open_gui": "Open Blank GUI"
+}
