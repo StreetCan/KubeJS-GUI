@@ -76,28 +76,28 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         this.modFilterButton = Button.builder(
             Component.literal("Mod: " + selectedMod),
             button -> cycleModFilter()
-        ).bounds(buttonX, buttonY + 22, 85, 20).build();
+        ).bounds(buttonX, buttonY + 22, 102, 20).build();
         this.addRenderableWidget(modFilterButton);
 
         // Recipe type button (left side)
         this.recipeTypeButton = Button.builder(
             Component.literal(getShortRecipeTypeName()),
             button -> cycleRecipeType()
-        ).bounds(buttonX, buttonY + 44, 85, 20).build();
+        ).bounds(buttonX, buttonY + 44, 102, 20).build();
         this.addRenderableWidget(recipeTypeButton);
 
         // Export button (left side)
         this.exportButton = Button.builder(
             Component.literal("Export"),
             button -> exportRecipe()
-        ).bounds(buttonX, buttonY + 66, 85, 20).build();
+        ).bounds(buttonX, buttonY + 66, 102, 20).build();
         this.addRenderableWidget(exportButton);
 
         // Clear button (left side)
         this.clearButton = Button.builder(
             Component.literal("Clear"),
             button -> clearRecipe()
-        ).bounds(buttonX, buttonY + 88, 85, 20).build();
+        ).bounds(buttonX, buttonY + 88, 102, 20).build();
         this.addRenderableWidget(clearButton);
 
         updateSlotConfiguration();
@@ -245,7 +245,6 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
-        guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
     }
 
     @Override

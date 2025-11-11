@@ -48,6 +48,10 @@ public class RecipeTypeRegistry {
             String modId = typeId.getNamespace();
             String recipePath = typeId.getPath();
 
+            if ("crafting".equals(recipePath)) {
+                continue;
+            }
+
             RecipeTypeInfo info = new RecipeTypeInfo(typeId, modId, recipePath);
 
             recipeTypesByMod.computeIfAbsent(modId, k -> new ArrayList<>()).add(info);

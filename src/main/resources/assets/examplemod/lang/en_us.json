@@ -1,7 +1,5 @@
 {
-  "itemGroup.examplemod": "Example Mod Tab",
   "block.examplemod.example_block": "Example Block",
-  "item.examplemod.example_item": "Example Item",
-  "key.categories.examplemod": "Example Mod",
+  "key.categories.examplemod": "KubeJS GUI",
   "key.examplemod.open_gui": "Open Blank GUI"
 }
