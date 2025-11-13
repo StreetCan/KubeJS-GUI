@@ -17,7 +17,7 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
 
     // Maximum slots we might need (e.g., 3x3 crafting = 9 inputs, some recipes have multiple outputs)
     private static final int MAX_INPUT_SLOTS = 9;
-    private static final int MAX_OUTPUT_SLOTS = 4;
+    private static final int MAX_OUTPUT_SLOTS = 9;
 
     private final ItemStackHandler inputItems = new ItemStackHandler(MAX_INPUT_SLOTS);
     private final ItemStackHandler outputItems = new ItemStackHandler(MAX_OUTPUT_SLOTS);
@@ -47,7 +47,7 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         // Add output slots (right side)
         for (int i = 0; i < MAX_OUTPUT_SLOTS; i++) {
             final int slotIndex = i;
-            addSlot(new SlotItemHandler(outputItems, i, 116 + (i % 2) * 18, 26 + (i / 2) * 18) {
+            addSlot(new SlotItemHandler(outputItems, i, 116 + (i % 3) * 18, 17 + (i / 3) * 18) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;

@@ -3,6 +3,7 @@ package com.example.examplemod.client;
 import com.example.examplemod.menu.RecipeEditorMenu;
 import com.example.examplemod.recipe.RecipeTypeRegistry;
 import com.example.examplemod.util.KubeJSExporter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -26,7 +27,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     private static final int SLOT_SHADOW_COLOR = 0xFF1B1B1B;
 
     private static final int INPUT_SLOT_COUNT = 9;
-    private static final int OUTPUT_SLOT_COUNT = 4;
+    private static final int OUTPUT_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;
     private static final int HOTBAR_SLOT_COUNT = 9;
 
@@ -101,6 +102,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         this.addRenderableWidget(clearButton);
 
         updateSlotConfiguration();
+        updateLayout();
     }
 
     private void cycleModFilter() {
@@ -150,10 +152,10 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
             || recipeType.equals("minecraft:crafting") || recipeType.contains(":crafting")) {
             // Vanilla crafting recipes all report the generic "minecraft:crafting" type, so make sure
             // we always expose the full 3x3 input grid and the 2x2 output grid for them.
-            menu.setActiveSlots(9, 4);
+            menu.setActiveSlots(9, 1);
         } else if (recipeType.contains("shaped") || recipeType.contains("shapeless")) {
             // Fallback for any custom shaped/shapeless identifiers that still deserve the full grid.
-            menu.setActiveSlots(9, 4);
+            menu.setActiveSlots(9, 1);
         } else if (recipeType.contains("smelting") || recipeType.contains("blasting") ||
                    recipeType.contains("smoking") || recipeType.contains("campfire")) {
             menu.setActiveSlots(1, 1); // 1 input, 1 output
@@ -163,7 +165,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
             menu.setActiveSlots(3, 1); // Template, base, addition -> output
         } else {
             // Default configuration
-            menu.setActiveSlots(3, 2); // 3 inputs, 2 outputs
+            menu.setActiveSlots(9, 9); // 3 inputs, 2 outputs
         }
     }
 
@@ -202,6 +204,42 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         }
         for (int i = 0; i < menu.getActiveOutputSlots(); i++) {
             menu.getOutputItems().setStackInSlot(i, net.minecraft.world.item.ItemStack.EMPTY);
+        }
+    }
+
+    private void updateLayout() {
+        final int margin = 6;
+        final int controlWidth = 85;
+        final int rowGap = 22;
+
+        // Prefer left side of the container; if that would go off-screen, place to the right.
+        int leftSideX = this.leftPos - (controlWidth + margin);
+        int rightSideX = this.leftPos + this.imageWidth + margin;
+
+        int buttonX = leftSideX >= margin ? leftSideX : rightSideX;
+
+        // Keep inside the screen horizontally
+        buttonX = Math.max(margin, Math.min(buttonX, this.width - controlWidth - margin));
+
+        int buttonY = this.topPos + 20;
+
+        // EditBox
+        recipeIdBox.setX(buttonX);
+        recipeIdBox.setY(buttonY);
+
+        // Buttons stacked vertically
+        modFilterButton.setPosition(buttonX, buttonY + rowGap);
+        recipeTypeButton.setPosition(buttonX, buttonY + rowGap * 2);
+        exportButton.setPosition(buttonX, buttonY + rowGap * 3);
+        clearButton.setPosition(buttonX, buttonY + rowGap * 4);
+    }
+
+    @Override
+    public void resize(Minecraft mc, int w, int h) {
+        super.resize(mc, w, h); // re-runs init()
+        // Defensive: if widgets persist across versions, ensure a correct layout after resize.
+        if (recipeIdBox != null) {
+            updateLayout();
         }
     }
 
