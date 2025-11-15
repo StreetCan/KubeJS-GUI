@@ -10,6 +10,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Container menu for the recipe editor GUI.
@@ -33,8 +34,15 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
     private int activeInputSlots = 1;  // How many input slots are currently visible
     private int activeOutputSlots = 1; // How many output slots are currently visible
 
-    private static final Field SLOT_X_FIELD = findSlotField("x");
-    private static final Field SLOT_Y_FIELD = findSlotField("y");
+    private static final Field SLOT_X_FIELD;
+    private static final Field SLOT_Y_FIELD;
+
+    static {
+        ItemStackHandler referenceHandler = new ItemStackHandler(1);
+        Slot referenceSlot = new SlotItemHandler(referenceHandler, 0, 113, 211);
+        SLOT_X_FIELD = resolveSlotCoordinateField(referenceSlot, 113);
+        SLOT_Y_FIELD = resolveSlotCoordinateField(referenceSlot, 211);
+    }
 
     public RecipeEditorMenu(int id, Inventory playerInventory) {
         super(ModMenuTypes.RECIPE_EDITOR.get(), id);
@@ -140,14 +148,20 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         }
     }
 
-    private static Field findSlotField(String name) {
-        try {
-            Field field = Slot.class.getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("Unable to access Slot." + name, e);
+    private static Field resolveSlotCoordinateField(Slot referenceSlot, int expectedValue) {
+        Field[] fields = Slot.class.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.getType() == int.class && !Modifier.isStatic(field.getModifiers())) {
+                field.setAccessible(true);
+                try {
+                    if (field.getInt(referenceSlot) == expectedValue) {
+                        return field;
+                    }
+                } catch (IllegalAccessException ignored) {
+                }
+            }
         }
+        throw new IllegalStateException("Unable to resolve slot coordinate field");
     }
 
     private static void moveSlot(Slot slot, int x, int y) {

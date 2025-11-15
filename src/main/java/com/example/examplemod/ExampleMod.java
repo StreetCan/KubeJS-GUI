@@ -1,5 +1,6 @@
 package com.example.examplemod;
 
+import com.example.examplemod.command.KubeJSGuiCommands;
 import com.example.examplemod.network.ModNetworking;
 import com.example.examplemod.registry.ModMenuTypes;
 import com.mojang.logging.LogUtils;
@@ -81,6 +82,7 @@ public class ExampleMod
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.addListener(KubeJSGuiCommands::register);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

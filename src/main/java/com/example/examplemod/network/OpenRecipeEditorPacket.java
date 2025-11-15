@@ -1,12 +1,9 @@
 package com.example.examplemod.network;
 
-import com.example.examplemod.menu.RecipeEditorMenu;
+import com.example.examplemod.menu.RecipeEditorOpener;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
 
 import java.util.function.Supplier;
 
@@ -25,10 +22,7 @@ public record OpenRecipeEditorPacket() {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player != null) {
-                NetworkHooks.openScreen(player, new SimpleMenuProvider(
-                    (windowId, inv, serverPlayer) -> new RecipeEditorMenu(windowId, inv),
-                    Component.literal("Recipe Editor")
-                ));
+                RecipeEditorOpener.open(player);
             }
         });
         context.setPacketHandled(true);
