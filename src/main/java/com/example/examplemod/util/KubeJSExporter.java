@@ -264,7 +264,7 @@ public class KubeJSExporter {
             ItemStack stack = outputs.getStackInSlot(i);
             if (!stack.isEmpty()) {
                 String itemId = getItemId(stack);
-                script.append("      { item: \"").append(itemId).append("\" }");
+                script.append("      { item: \"").append(itemId).append("\",count: 1 }");
 
                 boolean hasMore = false;
                 for (int j = i + 1; j < activeOutputSlots; j++) {
