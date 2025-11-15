@@ -20,6 +20,7 @@ public final class RecipePropertyLibrary {
 
     public static final String INGREDIENT_COUNT_ID = "common.ingredientCount";
     public static final String RESULT_COUNT_ID = "common.resultCount";
+    public static final String CREATE_ACCEPT_MIRRORED_ID = "create.acceptMirrored";
 
     private static final Map<String, Map<String, List<PropertyDefinition>>> PROPERTIES_BY_MOD = new HashMap<>();
 
@@ -59,6 +60,14 @@ public final class RecipePropertyLibrary {
         .value("100", "processingTime: %1$s,")
         .numeric(true)
         .valueHint("Ticks")
+        .build();
+
+    private static final PropertyDefinition CREATE_ACCEPT_MIRRORED = PropertyDefinition.builder(CREATE_ACCEPT_MIRRORED_ID, "Accept Mirrored")
+        .select("%1$s", List.of(
+            PropertyOption.emit("False", "false"),
+            PropertyOption.emit("True", "true")
+        ))
+        .emitter((definition, state, context) -> Optional.empty())
         .build();
 
     private static final PropertyDefinition COOKING_TIME = PropertyDefinition.builder("farmersdelight.cookingTime", "Cooking Time")
@@ -164,6 +173,12 @@ public final class RecipePropertyLibrary {
         );
 
         register("create", "cutting",
+            INGREDIENT_COUNT,
+            RESULT_COUNT
+        );
+
+        register("create", "mechanical_crafting",
+            CREATE_ACCEPT_MIRRORED,
             INGREDIENT_COUNT,
             RESULT_COUNT
         );

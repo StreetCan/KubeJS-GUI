@@ -27,7 +27,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     private static final int SLOT_HIGHLIGHT_COLOR = 0xFF555555;
     private static final int SLOT_SHADOW_COLOR = 0xFF1B1B1B;
 
-    private static final int INPUT_SLOT_COUNT = 9;
+    private static final int INPUT_SLOT_COUNT = 81;
     private static final int OUTPUT_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -48,6 +48,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     private int recipeTypeIndex = 0;
 
     private final RecipePropertyState propertyState = new RecipePropertyState();
+    private LayoutConfig currentLayout;
 
     public RecipeEditorScreen(RecipeEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -113,7 +114,6 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         this.addRenderableWidget(clearButton);
 
         updateSlotConfiguration();
-        updateLayout();
     }
 
     private void cycleModFilter() {
@@ -156,28 +156,53 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     }
 
     private void updateSlotConfiguration() {
-        // Configure slots based on recipe type
         String recipeType = selectedRecipeType.toLowerCase();
 
-        if (recipeType.contains("crafting_shaped") || recipeType.contains("crafting_shapeless")
-            || recipeType.equals("minecraft:crafting") || recipeType.contains(":crafting")) {
-            // Vanilla crafting recipes all report the generic "minecraft:crafting" type, so make sure
-            // we always expose the full 3x3 input grid and the 2x2 output grid for them.
-            menu.setActiveSlots(9, 1);
+        LayoutConfig layout;
+        if (recipeType.contains("mechanical_crafting")) {
+            layout = LayoutConfig.mechanical();
+        } else if (recipeType.contains("crafting_shaped") || recipeType.contains("crafting_shapeless")
+            || recipeType.equals("minecraft:crafting") || recipeType.endsWith(":crafting")) {
+            layout = LayoutConfig.standardCrafting();
         } else if (recipeType.contains("shaped") || recipeType.contains("shapeless")) {
-            // Fallback for any custom shaped/shapeless identifiers that still deserve the full grid.
-            menu.setActiveSlots(9, 1);
+            layout = LayoutConfig.standardCrafting();
         } else if (recipeType.contains("smelting") || recipeType.contains("blasting") ||
                    recipeType.contains("smoking") || recipeType.contains("campfire")) {
-            menu.setActiveSlots(1, 1); // 1 input, 1 output
+            layout = LayoutConfig.singleInputCooker();
         } else if (recipeType.contains("stonecutting")) {
-            menu.setActiveSlots(1, 1); // 1 input, 1 output
+            layout = LayoutConfig.singleInputCooker();
         } else if (recipeType.contains("smithing")) {
-            menu.setActiveSlots(3, 1); // Template, base, addition -> output
+            layout = LayoutConfig.smithing();
         } else {
-            // Default configuration
-            menu.setActiveSlots(9, 9); // 3 inputs, 2 outputs
+            layout = LayoutConfig.genericProcessing();
         }
+
+        applyLayout(layout);
+    }
+
+    private void applyLayout(LayoutConfig layout) {
+        this.currentLayout = layout;
+        this.imageWidth = layout.imageWidth;
+        this.imageHeight = layout.imageHeight;
+        this.inventoryLabelY = layout.inventoryLabelY;
+
+        this.leftPos = (this.width - this.imageWidth) / 2;
+        this.topPos = (this.height - this.imageHeight) / 2;
+
+        menu.configureLayout(
+            layout.activeInputSlots,
+            layout.inputColumns,
+            layout.inputOffsetX,
+            layout.inputOffsetY,
+            layout.activeOutputSlots,
+            layout.outputColumns,
+            layout.outputOffsetX,
+            layout.outputOffsetY,
+            layout.playerInventoryY,
+            layout.hotbarY
+        );
+
+        updateLayout();
     }
 
     private void exportRecipe() {
@@ -280,12 +305,14 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         guiGraphics.fill(x - 3, y - 3, x + imageWidth + 3, y + imageHeight + 3, PANEL_BACKGROUND_COLOR);
 
         // Recipe area panel
-        guiGraphics.fill(x + 3, y + 3, x + imageWidth - 3, y + 78, PANEL_BORDER_COLOR);
-        guiGraphics.fill(x + 4, y + 4, x + imageWidth - 4, y + 77, PANEL_BACKGROUND_COLOR);
+        int recipeBottom = currentLayout != null ? currentLayout.recipePanelBottom : 78;
+        guiGraphics.fill(x + 3, y + 3, x + imageWidth - 3, y + recipeBottom, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x + 4, y + 4, x + imageWidth - 4, y + recipeBottom - 1, PANEL_BACKGROUND_COLOR);
 
         // Player inventory panel
-        guiGraphics.fill(x + 3, y + 79, x + imageWidth - 3, y + imageHeight - 3, PANEL_BORDER_COLOR);
-        guiGraphics.fill(x + 4, y + 80, x + imageWidth - 4, y + imageHeight - 4, PANEL_BACKGROUND_COLOR);
+        int inventoryTop = currentLayout != null ? currentLayout.inventoryPanelTop : 79;
+        guiGraphics.fill(x + 3, y + inventoryTop, x + imageWidth - 3, y + imageHeight - 3, PANEL_BORDER_COLOR);
+        guiGraphics.fill(x + 4, y + inventoryTop + 1, x + imageWidth - 4, y + imageHeight - 4, PANEL_BACKGROUND_COLOR);
 
         // Draw input slots
         drawSlotGroup(guiGraphics, 0, menu.getActiveInputSlots());
@@ -350,5 +377,98 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         // Bottom and right shadow
         guiGraphics.fill(x + 1, y + SLOT_SIZE - 2, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, SLOT_SHADOW_COLOR);
         guiGraphics.fill(x + SLOT_SIZE - 2, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, SLOT_SHADOW_COLOR);
+    }
+
+    private static LayoutConfig createLayout(int inputs, int inputColumns, int inputOffsetX, int inputOffsetY,
+                                             int outputs, int outputColumns, int outputOffsetX, int outputOffsetY,
+                                             int playerInventoryY, int hotbarY, int imageWidth, int imageHeight) {
+        return new LayoutConfig(
+            inputs,
+            inputColumns,
+            inputOffsetX,
+            inputOffsetY,
+            outputs,
+            outputColumns,
+            outputOffsetX,
+            outputOffsetY,
+            playerInventoryY,
+            hotbarY,
+            imageWidth,
+            imageHeight
+        );
+    }
+
+    private static final class LayoutConfig {
+        final int activeInputSlots;
+        final int inputColumns;
+        final int inputOffsetX;
+        final int inputOffsetY;
+        final int activeOutputSlots;
+        final int outputColumns;
+        final int outputOffsetX;
+        final int outputOffsetY;
+        final int playerInventoryY;
+        final int hotbarY;
+        final int imageWidth;
+        final int imageHeight;
+        final int recipePanelBottom;
+        final int inventoryPanelTop;
+        final int inventoryLabelY;
+
+        private LayoutConfig(int activeInputSlots, int inputColumns, int inputOffsetX, int inputOffsetY,
+                              int activeOutputSlots, int outputColumns, int outputOffsetX, int outputOffsetY,
+                              int playerInventoryY, int hotbarY, int imageWidth, int imageHeight) {
+            this.activeInputSlots = activeInputSlots;
+            this.inputColumns = Math.max(1, inputColumns);
+            this.inputOffsetX = inputOffsetX;
+            this.inputOffsetY = inputOffsetY;
+            this.activeOutputSlots = activeOutputSlots;
+            this.outputColumns = Math.max(1, outputColumns);
+            this.outputOffsetX = outputOffsetX;
+            this.outputOffsetY = outputOffsetY;
+            this.playerInventoryY = playerInventoryY;
+            this.hotbarY = hotbarY;
+            this.imageWidth = imageWidth;
+            this.imageHeight = imageHeight;
+
+            int rows = activeInputSlots <= 0 ? 1 : (int) Math.ceil((double) activeInputSlots / this.inputColumns);
+            int slotBottom = inputOffsetY + rows * SLOT_SIZE;
+            int inferredRecipeBottom = playerInventoryY - 6;
+            this.recipePanelBottom = Math.max(slotBottom + 6, inferredRecipeBottom);
+            this.inventoryPanelTop = playerInventoryY - 5;
+            this.inventoryLabelY = playerInventoryY - 12;
+        }
+
+        static LayoutConfig standardCrafting() {
+            return createLayout(9, 3, 8, 17, 1, 3, 116, 17, 84, 142, 176, 166);
+        }
+
+        static LayoutConfig genericProcessing() {
+            return createLayout(9, 3, 8, 17, 9, 3, 116, 17, 84, 142, 176, 166);
+        }
+
+        static LayoutConfig singleInputCooker() {
+            return createLayout(1, 1, 44, 35, 1, 1, 116, 35, 84, 142, 176, 166);
+        }
+
+        static LayoutConfig smithing() {
+            return createLayout(3, 3, 26, 35, 1, 1, 134, 53, 84, 142, 176, 166);
+        }
+
+        static LayoutConfig mechanical() {
+            int inputOffsetX = 8;
+            int inputOffsetY = 17;
+            int inputColumns = 9;
+            int activeInputs = 81;
+            int inputRows = 9;
+            int outputOffsetX = inputOffsetX + inputColumns * SLOT_SIZE + 24;
+            int outputOffsetY = inputOffsetY + (inputRows * SLOT_SIZE) / 2 - SLOT_SIZE / 2;
+            int playerInventoryY = inputOffsetY + inputRows * SLOT_SIZE + 36;
+            int hotbarY = playerInventoryY + 58;
+            int imageWidth = outputOffsetX + SLOT_SIZE + 8;
+            int imageHeight = hotbarY + 24;
+            return createLayout(activeInputs, inputColumns, inputOffsetX, inputOffsetY,
+                1, 1, outputOffsetX, outputOffsetY, playerInventoryY, hotbarY, imageWidth, imageHeight);
+        }
     }
 }

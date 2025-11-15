@@ -15,12 +15,18 @@ import net.minecraftforge.items.SlotItemHandler;
  */
 public class RecipeEditorMenu extends AbstractContainerMenu {
 
-    // Maximum slots we might need (e.g., 3x3 crafting = 9 inputs, some recipes have multiple outputs)
-    private static final int MAX_INPUT_SLOTS = 9;
+    private static final int MAX_INPUT_SLOTS = 81;
     private static final int MAX_OUTPUT_SLOTS = 9;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;
+    private static final int HOTBAR_SLOT_COUNT = 9;
 
     private final ItemStackHandler inputItems = new ItemStackHandler(MAX_INPUT_SLOTS);
     private final ItemStackHandler outputItems = new ItemStackHandler(MAX_OUTPUT_SLOTS);
+
+    private final Slot[] inputSlots = new Slot[MAX_INPUT_SLOTS];
+    private final Slot[] outputSlots = new Slot[MAX_OUTPUT_SLOTS];
+    private final Slot[] playerInventorySlots = new Slot[PLAYER_INVENTORY_SLOT_COUNT];
+    private final Slot[] hotbarSlots = new Slot[HOTBAR_SLOT_COUNT];
 
     private int activeInputSlots = 1;  // How many input slots are currently visible
     private int activeOutputSlots = 1; // How many output slots are currently visible
@@ -31,7 +37,7 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         // Add input slots (left side)
         for (int i = 0; i < MAX_INPUT_SLOTS; i++) {
             final int slotIndex = i;
-            addSlot(new SlotItemHandler(inputItems, i, 8 + (i % 3) * 18, 17 + (i / 3) * 18) {
+            Slot slot = new SlotItemHandler(inputItems, i, 8, 17) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
@@ -41,13 +47,15 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
                 public boolean isActive() {
                     return slotIndex < activeInputSlots;
                 }
-            });
+            };
+            inputSlots[i] = slot;
+            addSlot(slot);
         }
 
         // Add output slots (right side)
         for (int i = 0; i < MAX_OUTPUT_SLOTS; i++) {
             final int slotIndex = i;
-            addSlot(new SlotItemHandler(outputItems, i, 116 + (i % 3) * 18, 17 + (i / 3) * 18) {
+            Slot slot = new SlotItemHandler(outputItems, i, 116, 17) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return true;
@@ -57,20 +65,30 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
                 public boolean isActive() {
                     return slotIndex < activeOutputSlots;
                 }
-            });
+            };
+            outputSlots[i] = slot;
+            addSlot(slot);
         }
 
         // Add player inventory
+        int playerSlot = 0;
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                Slot slot = new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18);
+                playerInventorySlots[playerSlot++] = slot;
+                addSlot(slot);
             }
         }
 
         // Add player hotbar
+        int hotbarSlot = 0;
         for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            Slot slot = new Slot(playerInventory, col, 8 + col * 18, 142);
+            hotbarSlots[hotbarSlot++] = slot;
+            addSlot(slot);
         }
+
+        configureLayout(9, 3, 8, 17, 1, 3, 116, 17, 84, 142);
     }
 
     public ItemStackHandler getInputItems() {
@@ -81,9 +99,44 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
         return outputItems;
     }
 
-    public void setActiveSlots(int inputs, int outputs) {
+    public void configureLayout(int inputs, int inputColumns, int inputOffsetX, int inputOffsetY,
+                                int outputs, int outputColumns, int outputOffsetX, int outputOffsetY,
+                                int playerInventoryOffsetY, int hotbarOffsetY) {
         this.activeInputSlots = Math.min(inputs, MAX_INPUT_SLOTS);
         this.activeOutputSlots = Math.min(outputs, MAX_OUTPUT_SLOTS);
+
+        int resolvedInputColumns = Math.max(1, inputColumns);
+        int resolvedOutputColumns = Math.max(1, outputColumns);
+
+        for (int i = 0; i < inputSlots.length; i++) {
+            Slot slot = inputSlots[i];
+            int column = i % resolvedInputColumns;
+            int row = i / resolvedInputColumns;
+            slot.x = inputOffsetX + column * 18;
+            slot.y = inputOffsetY + row * 18;
+        }
+
+        for (int i = 0; i < outputSlots.length; i++) {
+            Slot slot = outputSlots[i];
+            int column = i % resolvedOutputColumns;
+            int row = i / resolvedOutputColumns;
+            slot.x = outputOffsetX + column * 18;
+            slot.y = outputOffsetY + row * 18;
+        }
+
+        for (int i = 0; i < playerInventorySlots.length; i++) {
+            Slot slot = playerInventorySlots[i];
+            int column = i % 9;
+            int row = i / 9;
+            slot.x = 8 + column * 18;
+            slot.y = playerInventoryOffsetY + row * 18;
+        }
+
+        for (int i = 0; i < hotbarSlots.length; i++) {
+            Slot slot = hotbarSlots[i];
+            slot.x = 8 + i * 18;
+            slot.y = hotbarOffsetY;
+        }
     }
 
     public int getActiveInputSlots() {

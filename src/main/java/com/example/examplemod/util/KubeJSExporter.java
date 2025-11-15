@@ -15,6 +15,9 @@ import java.io.IOException;
  * Utility class for generating and exporting KubeJS recipe scripts.
  */
 public class KubeJSExporter {
+    private static final char[] MECHANICAL_KEY_CHARS = (
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!#$%&*+-/<=>?@^_|~:"
+    ).toCharArray();
 
     /**
      * Generates a KubeJS recipe script from the given parameters.
@@ -40,7 +43,9 @@ public class KubeJSExporter {
         // Handle different recipe types
         String lowerType = recipeType.toLowerCase();
 
-        if (lowerType.contains("shaped") || lowerType.contains("crafting_shaped")) {
+        if (lowerType.contains("mechanical_crafting")) {
+            generateMechanicalCrafting(script, inputs, outputs, state);
+        } else if (lowerType.contains("shaped") || lowerType.contains("crafting_shaped")) {
             generateShapedCrafting(script, inputs, outputs, activeInputSlots, activeOutputSlots, state);
         } else if (lowerType.contains("shapeless") || lowerType.contains("crafting_shapeless")) {
             generateShapelessCrafting(script, recipeType, inputs, outputs, activeInputSlots, activeOutputSlots, state);
@@ -60,6 +65,77 @@ public class KubeJSExporter {
         script.append("});\n");
 
         return script.toString();
+    }
+
+    private static void generateMechanicalCrafting(StringBuilder script, ItemStackHandler inputs,
+                                                   ItemStackHandler outputs, RecipePropertyState state) {
+        final int gridSize = 9;
+        final int totalSlots = gridSize * gridSize;
+
+        script.append("        pattern: [\n");
+        for (int row = 0; row < gridSize; row++) {
+            script.append("            \"");
+            for (int col = 0; col < gridSize; col++) {
+                int slotIndex = row * gridSize + col;
+                ItemStack stack = inputs.getStackInSlot(slotIndex);
+                if (!stack.isEmpty()) {
+                    script.append(getMechanicalKeyChar(slotIndex));
+                } else {
+                    script.append(' ');
+                }
+            }
+            script.append("\"");
+            if (row < gridSize - 1) {
+                script.append(',');
+            }
+            script.append("\n");
+        }
+        script.append("        ],\n");
+
+        script.append("        key: {\n");
+        for (int i = 0; i < totalSlots; i++) {
+            ItemStack stack = inputs.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            char keyChar = getMechanicalKeyChar(i);
+            String itemId = getItemId(stack);
+            int count = resolveSlotCount(state, RecipePropertyLibrary.INGREDIENT_COUNT_ID, i, stack.getCount());
+
+            script.append("            \"").append(keyChar).append("\": { item: \"").append(itemId).append("\"");
+            if (count > 1) {
+                script.append(", count: ").append(count);
+            }
+            script.append(" }");
+
+            boolean hasMore = false;
+            for (int j = i + 1; j < totalSlots; j++) {
+                if (!inputs.getStackInSlot(j).isEmpty()) {
+                    hasMore = true;
+                    break;
+                }
+            }
+            if (hasMore) {
+                script.append(',');
+            }
+            script.append("\n");
+        }
+        script.append("        },\n");
+
+        ItemStack resultStack = outputs.getStackInSlot(0);
+        if (!resultStack.isEmpty()) {
+            String resultId = getItemId(resultStack);
+            int resultCount = resolveSlotCount(state, RecipePropertyLibrary.RESULT_COUNT_ID, 0, resultStack.getCount());
+
+            script.append("        result: {\n");
+            script.append("            item: \"").append(resultId).append("\",\n");
+            script.append("            count: ").append(resultCount).append("\n");
+            script.append("        },\n");
+        }
+
+        boolean acceptMirrored = resolveAcceptMirrored(state);
+        script.append("        acceptMirrored: ").append(acceptMirrored ? "true" : "false").append('\n');
     }
 
     private static void generateShapedCrafting(StringBuilder script, ItemStackHandler inputs,
@@ -372,6 +448,21 @@ public class KubeJSExporter {
         } catch (NumberFormatException ex) {
             return Math.max(fallback, 1);
         }
+    }
+
+    private static char getMechanicalKeyChar(int index) {
+        if (index >= 0 && index < MECHANICAL_KEY_CHARS.length) {
+            return MECHANICAL_KEY_CHARS[index];
+        }
+        return (char) ('A' + (index % 26));
+    }
+
+    private static boolean resolveAcceptMirrored(RecipePropertyState state) {
+        if (state == null) {
+            return false;
+        }
+        int index = state.getOptionIndex(RecipePropertyLibrary.CREATE_ACCEPT_MIRRORED_ID);
+        return index >= 1;
     }
 
     /**
