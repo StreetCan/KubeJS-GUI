@@ -9,6 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
+import java.lang.reflect.Field;
+
 /**
  * Container menu for the recipe editor GUI.
  * Handles flexible input/output slots that adjust based on recipe type.
@@ -30,6 +32,9 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
 
     private int activeInputSlots = 1;  // How many input slots are currently visible
     private int activeOutputSlots = 1; // How many output slots are currently visible
+
+    private static final Field SLOT_X_FIELD = findSlotField("x");
+    private static final Field SLOT_Y_FIELD = findSlotField("y");
 
     public RecipeEditorMenu(int id, Inventory playerInventory) {
         super(ModMenuTypes.RECIPE_EDITOR.get(), id);
@@ -112,30 +117,45 @@ public class RecipeEditorMenu extends AbstractContainerMenu {
             Slot slot = inputSlots[i];
             int column = i % resolvedInputColumns;
             int row = i / resolvedInputColumns;
-            slot.x = inputOffsetX + column * 18;
-            slot.y = inputOffsetY + row * 18;
+            moveSlot(slot, inputOffsetX + column * 18, inputOffsetY + row * 18);
         }
 
         for (int i = 0; i < outputSlots.length; i++) {
             Slot slot = outputSlots[i];
             int column = i % resolvedOutputColumns;
             int row = i / resolvedOutputColumns;
-            slot.x = outputOffsetX + column * 18;
-            slot.y = outputOffsetY + row * 18;
+            moveSlot(slot, outputOffsetX + column * 18, outputOffsetY + row * 18);
         }
 
         for (int i = 0; i < playerInventorySlots.length; i++) {
             Slot slot = playerInventorySlots[i];
             int column = i % 9;
             int row = i / 9;
-            slot.x = 8 + column * 18;
-            slot.y = playerInventoryOffsetY + row * 18;
+            moveSlot(slot, 8 + column * 18, playerInventoryOffsetY + row * 18);
         }
 
         for (int i = 0; i < hotbarSlots.length; i++) {
             Slot slot = hotbarSlots[i];
-            slot.x = 8 + i * 18;
-            slot.y = hotbarOffsetY;
+            moveSlot(slot, 8 + i * 18, hotbarOffsetY);
+        }
+    }
+
+    private static Field findSlotField(String name) {
+        try {
+            Field field = Slot.class.getDeclaredField(name);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("Unable to access Slot." + name, e);
+        }
+    }
+
+    private static void moveSlot(Slot slot, int x, int y) {
+        try {
+            SLOT_X_FIELD.setInt(slot, x);
+            SLOT_Y_FIELD.setInt(slot, y);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Unable to reposition slot", e);
         }
     }
 
