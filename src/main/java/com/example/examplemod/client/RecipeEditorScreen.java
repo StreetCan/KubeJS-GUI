@@ -2,6 +2,7 @@ package com.example.examplemod.client;
 
 import com.example.examplemod.menu.RecipeEditorMenu;
 import com.example.examplemod.recipe.RecipeTypeRegistry;
+import com.example.examplemod.recipe.properties.RecipePropertyState;
 import com.example.examplemod.util.KubeJSExporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,6 +37,7 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
     private Button recipeTypeButton;
     private Button exportButton;
     private Button clearButton;
+    private Button propertiesButton;
 
     private String selectedMod = "minecraft";
     private String selectedRecipeType = "minecraft:crafting_shaped";
@@ -44,6 +46,8 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
 
     private int modFilterIndex = 0;
     private int recipeTypeIndex = 0;
+
+    private final RecipePropertyState propertyState = new RecipePropertyState();
 
     public RecipeEditorScreen(RecipeEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -87,18 +91,25 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         ).bounds(buttonX, buttonY + 44, 85, 20).build();
         this.addRenderableWidget(recipeTypeButton);
 
+        // Properties button (left side)
+        this.propertiesButton = Button.builder(
+            Component.literal("Properties"),
+            button -> openProperties()
+        ).bounds(buttonX, buttonY + 66, 85, 20).build();
+        this.addRenderableWidget(propertiesButton);
+
         // Export button (left side)
         this.exportButton = Button.builder(
             Component.literal("Export"),
             button -> exportRecipe()
-        ).bounds(buttonX, buttonY + 66, 85, 20).build();
+        ).bounds(buttonX, buttonY + 88, 85, 20).build();
         this.addRenderableWidget(exportButton);
 
         // Clear button (left side)
         this.clearButton = Button.builder(
             Component.literal("Clear"),
             button -> clearRecipe()
-        ).bounds(buttonX, buttonY + 88, 85, 20).build();
+        ).bounds(buttonX, buttonY + 110, 85, 20).build();
         this.addRenderableWidget(clearButton);
 
         updateSlotConfiguration();
@@ -181,7 +192,8 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
             menu.getInputItems(),
             menu.getOutputItems(),
             menu.getActiveInputSlots(),
-            menu.getActiveOutputSlots()
+            menu.getActiveOutputSlots(),
+            propertyState
         );
 
         boolean success = KubeJSExporter.exportToFile(script, recipeId);
@@ -205,6 +217,8 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         for (int i = 0; i < menu.getActiveOutputSlots(); i++) {
             menu.getOutputItems().setStackInSlot(i, net.minecraft.world.item.ItemStack.EMPTY);
         }
+
+        propertyState.clear();
     }
 
     private void updateLayout() {
@@ -230,8 +244,21 @@ public class RecipeEditorScreen extends AbstractContainerScreen<RecipeEditorMenu
         // Buttons stacked vertically
         modFilterButton.setPosition(buttonX, buttonY + rowGap);
         recipeTypeButton.setPosition(buttonX, buttonY + rowGap * 2);
-        exportButton.setPosition(buttonX, buttonY + rowGap * 3);
-        clearButton.setPosition(buttonX, buttonY + rowGap * 4);
+        propertiesButton.setPosition(buttonX, buttonY + rowGap * 3);
+        exportButton.setPosition(buttonX, buttonY + rowGap * 4);
+        clearButton.setPosition(buttonX, buttonY + rowGap * 5);
+    }
+
+    private void openProperties() {
+        if (this.minecraft != null) {
+            this.minecraft.setScreen(new RecipePropertiesScreen(
+                this,
+                propertyState,
+                selectedRecipeType,
+                menu.getActiveInputSlots(),
+                menu.getActiveOutputSlots()
+            ));
+        }
     }
 
     @Override
