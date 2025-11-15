@@ -53,7 +53,7 @@ public class KubeJSExporter {
             generateSmithingRecipe(script, inputs, outputs, state);
         } else {
             // Generic recipe format
-            generateGenericRecipe(script, inputs, outputs, activeInputSlots, activeOutputSlots, state);
+            generateGenericRecipe(script, recipeType, inputs, outputs, activeInputSlots, activeOutputSlots, state);
         }
 
         script.append("  }).id(\"kubejs:").append(recipeId).append("\");\n");
@@ -272,8 +272,9 @@ public class KubeJSExporter {
         }
     }
 
-    private static void generateGenericRecipe(StringBuilder script, ItemStackHandler inputs,
-                                               ItemStackHandler outputs, int activeInputSlots, int activeOutputSlots,
+    private static void generateGenericRecipe(StringBuilder script, String recipeType,
+                                               ItemStackHandler inputs, ItemStackHandler outputs,
+                                               int activeInputSlots, int activeOutputSlots,
                                                RecipePropertyState state) {
         script.append("    ingredients: [\n");
 
@@ -301,8 +302,30 @@ public class KubeJSExporter {
         }
         script.append("    ],\n");
 
-        // Add outputs
-        script.append("    results: [\n");
+        ResourceLocation typeId = ResourceLocation.tryParse(recipeType);
+        boolean isFarmersDelight = typeId != null && "farmersdelight".equals(typeId.getNamespace());
+        boolean isCooking = isFarmersDelight && "cooking".equals(typeId.getPath());
+        boolean isCutting = isFarmersDelight && "cutting".equals(typeId.getPath());
+
+        if (isCooking) {
+            for (int i = 0; i < activeOutputSlots; i++) {
+                ItemStack stack = outputs.getStackInSlot(i);
+                if (!stack.isEmpty()) {
+                    String itemId = getItemId(stack);
+                    int count = resolveSlotCount(state, RecipePropertyLibrary.RESULT_COUNT_ID, i, stack.getCount());
+                    script.append("    result: { item: \"").append(itemId).append("\"");
+                    if (count > 1) {
+                        script.append(", count: ").append(count);
+                    }
+                    script.append(" }\n");
+                    break;
+                }
+            }
+            return;
+        }
+
+        String outputField = isCutting ? "result" : "results";
+        script.append("    ").append(outputField).append(": [\n");
         for (int i = 0; i < activeOutputSlots; i++) {
             ItemStack stack = outputs.getStackInSlot(i);
             if (!stack.isEmpty()) {

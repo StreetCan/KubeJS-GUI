@@ -62,7 +62,7 @@ public final class RecipePropertyLibrary {
         .build();
 
     private static final PropertyDefinition COOKING_TIME = PropertyDefinition.builder("farmersdelight.cookingTime", "Cooking Time")
-        .value("200", "cookingTime: %1$s,")
+        .value("200", "cookingtime: %1$s,")
         .numeric(true)
         .valueHint("Ticks")
         .build();
@@ -77,6 +77,21 @@ public final class RecipePropertyLibrary {
         .value("1", "toolDamage: %1$s,")
         .numeric(true)
         .valueHint("Points")
+        .build();
+
+    private static final PropertyDefinition FARMERS_DELIGHT_TOOL_TAG = PropertyDefinition.builder("farmersdelight.toolTag", "Tool Tag")
+        .value("forge:tools/knives", "tool: { tag: \"%1$s\" },")
+        .numeric(false)
+        .valueHint("forge:tools/knives")
+        .emitter((definition, state, context) -> {
+            String value = state.hasValue(definition.getId())
+                ? state.getValue(definition.getId())
+                : definition.getDefaultValue();
+            if (value == null || value.isBlank()) {
+                return Optional.empty();
+            }
+            return Optional.of(String.format("tool: { tag: \"%1$s\" },", value.trim()));
+        })
         .build();
 
     private static final PropertyDefinition KEEP_HELD_ITEM = PropertyDefinition.builder("common.keepHeldItem", "Keep Held Item")
@@ -163,6 +178,7 @@ public final class RecipePropertyLibrary {
         );
 
         register("farmersdelight", "cutting",
+            FARMERS_DELIGHT_TOOL_TAG,
             FARMERS_DELIGHT_TOOL_DAMAGE,
             KEEP_HELD_ITEM,
             INGREDIENT_COUNT,

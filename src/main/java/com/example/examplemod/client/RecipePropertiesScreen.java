@@ -26,6 +26,11 @@ public class RecipePropertiesScreen extends Screen {
     private static final int PANEL_WIDTH = 260;
     private static final int PANEL_HEIGHT = 190;
     private static final int ROW_HEIGHT = 28;
+    private static final int LABEL_COLUMN_WIDTH = 100;
+    private static final int SLOT_BUTTON_WIDTH = 60;
+    private static final int OPTION_BUTTON_WIDTH = 80;
+    private static final int VALUE_BOX_WIDTH = 80;
+    private static final int CONTROL_SPACING = 4;
 
     private final RecipeEditorScreen parent;
     private final RecipePropertyState propertyState;
@@ -57,7 +62,8 @@ public class RecipePropertiesScreen extends Screen {
         pendingOptionIndices.clear();
         pendingSlotIndices.clear();
 
-        int startX = (this.width - PANEL_WIDTH) / 2 + 12;
+        int panelX0 = (this.width - PANEL_WIDTH) / 2;
+        int startX = panelX0 + 12;
         int startY = (this.height - PANEL_HEIGHT) / 2 + 38;
 
         int rowIndex = 0;
@@ -71,7 +77,7 @@ public class RecipePropertiesScreen extends Screen {
             int rowY = startY + rowIndex * ROW_HEIGHT;
             RowMetadata row = new RowMetadata(definition, startX, rowY);
 
-            int controlX = startX + 120;
+            int controlX = startX + LABEL_COLUMN_WIDTH;
 
             if (definition.supportsSlotSelection() && slotCount > 0) {
                 int selectedSlot = propertyState.getSlotIndex(definition.getId());
@@ -84,12 +90,12 @@ public class RecipePropertiesScreen extends Screen {
                         Component.literal(formatSlotLabel(definition.getSlotDomain(), selectedSlot)),
                         button -> cycleSlot(definition, row, button)
                     )
-                    .bounds(controlX, rowY - 6, 72, 20)
+                    .bounds(controlX, rowY - 6, SLOT_BUTTON_WIDTH, 20)
                     .build();
                 row.slotButton = slotButton;
                 addRenderableWidget(slotButton);
 
-                controlX += 76;
+                controlX += SLOT_BUTTON_WIDTH + CONTROL_SPACING;
             }
 
             if (definition.getType() == PropertyType.SELECT) {
@@ -108,7 +114,7 @@ public class RecipePropertiesScreen extends Screen {
                         Component.literal(label),
                         button -> cycleOption(definition, button)
                     )
-                    .bounds(controlX, rowY - 6, 92, 20)
+                    .bounds(controlX, rowY - 6, OPTION_BUTTON_WIDTH, 20)
                     .build();
                 row.optionButton = optionButton;
                 addRenderableWidget(optionButton);
@@ -127,7 +133,7 @@ public class RecipePropertiesScreen extends Screen {
                     currentValue = "";
                 }
 
-                EditBox valueBox = new EditBox(this.font, controlX, rowY - 6, 92, 20, Component.literal(definition.getLabel()));
+                EditBox valueBox = new EditBox(this.font, controlX, rowY - 6, VALUE_BOX_WIDTH, 20, Component.literal(definition.getLabel()));
                 valueBox.setMaxLength(32);
                 valueBox.setValue(currentValue);
                 if (!definition.getValueHint().isBlank()) {
