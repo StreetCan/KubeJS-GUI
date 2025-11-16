@@ -5,7 +5,8 @@ Requested mod recipe compatibility that will be added:
 - Farmer's Delight (Cutting board and Cooking)
 - Forbidden & Arcanus
 - Ars Nouveau
-- Avaritia 
+- Avaritia
+- Draconic evolution(fusion crafting)
 
 Mapping Names:
 ============
