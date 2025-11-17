@@ -1,12 +1,12 @@
 
 Requested mod recipe compatibility that will be added:
-- Create (More advanced recipe scripts other than the basic mixing/pressing scripts)
-- The Twighlight Forest (Uncrafting table)
-- Farmer's Delight (Cutting board and Cooking)
-- Forbidden & Arcanus
-- Ars Nouveau
-- Avaritia
-- Draconic evolution(fusion crafting)
+- [ ]  Create (More advanced recipe scripts other than the basic mixing/pressing scripts)
+- [ ]  The Twighlight Forest (Uncrafting table)
+- [ ]  Farmer's Delight (Cutting board and Cooking)
+- [ ]  Forbidden & Arcanus
+- [ ]  Ars Nouveau
+- [ ]  Avaritia
+- [ ]  Draconic evolution(fusion crafting)
 
 Mapping Names:
 ============
