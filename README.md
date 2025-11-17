@@ -1,12 +1,14 @@
 
-Requested mod recipe compatibility that will be added:
-- [ ]  Create (More advanced recipe scripts other than the basic mixing/pressing scripts)
+Requested mod recipe compatibility and features that will be added (basically a todo list):
+- [x]  Create (More advanced recipe scripts other than the basic mixing/pressing scripts)
 - [ ]  The Twighlight Forest (Uncrafting table)
-- [ ]  Farmer's Delight (Cutting board and Cooking)
+- [x]  Farmer's Delight (Cutting board and Cooking)
 - [ ]  Forbidden & Arcanus
 - [ ]  Ars Nouveau
 - [ ]  Avaritia
 - [ ]  Draconic evolution(fusion crafting)
+- [ ]  Remove the E key inventory closing event in the GUI
+- [ ]  Fluid Support
 
 Mapping Names:
 ============
