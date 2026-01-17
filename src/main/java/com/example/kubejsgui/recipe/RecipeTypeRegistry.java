@@ -1,4 +1,4 @@
-package com.example.examplemod.recipe;
+package com.example.kubejsgui.recipe;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;

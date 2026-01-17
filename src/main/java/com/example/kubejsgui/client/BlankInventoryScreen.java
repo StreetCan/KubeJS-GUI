@@ -1,4 +1,4 @@
-package com.example.examplemod.client;
+package com.example.kubejsgui.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

@@ -1,4 +1,4 @@
-package com.example.examplemod.util;
+package com.example.kubejsgui.util;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
