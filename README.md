@@ -1,3 +1,4 @@
+Note: Current code is depreciated. I will add the new code at some point.
 
 Requested mod recipe compatibility and features that will be added (basically a todo list):
 - [x]  Create (More advanced recipe scripts other than the basic mixing/pressing scripts)
