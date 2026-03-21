@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.example.kubejsgui;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

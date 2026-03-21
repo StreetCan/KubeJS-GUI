@@ -1,4 +1,4 @@
-package com.example.examplemod.client;
+package com.example.kubejsgui.client;
 
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraft.client.KeyMapping;
@@ -7,8 +7,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBindings {
-    public static final String CATEGORY = "key.categories.examplemod";
-    public static final String OPEN_GUI = "key.examplemod.open_gui";
+    public static final String CATEGORY = "key.categories.kubejsgui";
+    public static final String OPEN_GUI = "key.kubejsgui.open_gui";
 
     public static KeyMapping OPEN_GUI_KEY;
 

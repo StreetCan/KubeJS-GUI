@@ -1,6 +1,6 @@
-package com.example.examplemod.network;
+package com.example.kubejsgui.network;
 
-import com.example.examplemod.menu.RecipeEditorMenu;
+import com.example.kubejsgui.menu.RecipeEditorMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

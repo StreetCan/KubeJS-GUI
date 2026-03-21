@@ -1,6 +1,6 @@
-package com.example.examplemod.network;
+package com.example.kubejsgui.network;
 
-import com.example.examplemod.ExampleMod;
+import com.example.kubejsgui.ExampleMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
