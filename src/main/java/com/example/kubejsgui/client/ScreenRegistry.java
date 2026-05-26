@@ -1,6 +1,6 @@
-package com.example.examplemod.client;
+package com.example.kubejsgui.client;
 
-import com.example.examplemod.registry.ModMenuTypes;
+import com.example.kubejsgui.registry.ModMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

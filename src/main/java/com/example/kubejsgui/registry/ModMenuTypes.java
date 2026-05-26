@@ -1,7 +1,7 @@
-package com.example.examplemod.registry;
+package com.example.kubejsgui.registry;
 
-import com.example.examplemod.ExampleMod;
-import com.example.examplemod.menu.RecipeEditorMenu;
+import com.example.kubejsgui.ExampleMod;
+import com.example.kubejsgui.menu.RecipeEditorMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;

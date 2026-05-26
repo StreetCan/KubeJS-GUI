@@ -1,0 +1,7 @@
+{
+  "itemGroup.kubejsgui": "Example Mod Tab",
+  "block.kubejsgui.example_block": "Example Block",
+  "item.kubejsgui.example_item": "Example Item",
+  "key.categories.kubejsgui": "Example Mod",
+  "key.kubejsgui.open_gui": "Open Blank GUI"
+}

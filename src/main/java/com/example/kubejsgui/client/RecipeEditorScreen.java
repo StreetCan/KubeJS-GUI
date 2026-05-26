@@ -1,8 +1,8 @@
-package com.example.examplemod.client;
+package com.example.kubejsgui.client;
 
-import com.example.examplemod.menu.RecipeEditorMenu;
-import com.example.examplemod.recipe.RecipeTypeRegistry;
-import com.example.examplemod.util.KubeJSExporter;
+import com.example.kubejsgui.menu.RecipeEditorMenu;
+import com.example.kubejsgui.recipe.RecipeTypeRegistry;
+import com.example.kubejsgui.util.KubeJSExporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

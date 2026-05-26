@@ -1,7 +1,7 @@
-package com.example.examplemod.client;
+package com.example.kubejsgui.client;
 
-import com.example.examplemod.network.ModNetworking;
-import com.example.examplemod.network.OpenRecipeEditorPacket;
+import com.example.kubejsgui.network.ModNetworking;
+import com.example.kubejsgui.network.OpenRecipeEditorPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
