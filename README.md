@@ -1,3 +1,5 @@
+# This project has been abandoned in favor of an overhauled version. Please see my other repo called "KubeJS GUI Overhaul"
+
 Sorry for radio silence, genuinely had no time throughout the semester to work on the mod, currently studying for finals. Pinned a comment on the curseforge page explaining it, have not forgotten about the mod don't worry.
 
 Note: Current code is depreciated. I will add the new code at some point.
